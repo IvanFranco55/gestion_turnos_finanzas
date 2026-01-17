@@ -1,0 +1,74 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">
+                    {% if form.instance.pk %}
+                        <i class="bi bi-pencil-square"></i> Editar Paciente
+                    {% else %}
+                        <i class="bi bi-person-plus-fill"></i> Nuevo Paciente
+                    {% endif %}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">DNI</label>
+                        {{ form.dni }}
+                        {% if form.dni.errors %}
+                            <div class="text-danger small">{{ form.dni.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Nombre</label>
+                            {{ form.nombre }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Apellido</label>
+                            {{ form.apellido }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Obra Social Predeterminada</label>
+                        {{ form.obra_social_default }}
+                        <div class="form-text text-muted">Se usará automáticamente al crearle un turno.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Teléfono</label>
+                            {{ form.telefono }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Email (Opcional)</label>
+                            {{ form.email }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Observaciones / Antecedentes</label>
+                        {{ form.observaciones }} <div class="form-text">Alergias, cirugías previas, patologías crónicas, etc.</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-save"></i> Guardar Paciente
+                        </button>
+                        <a href="{% url 'lista_pacientes' %}" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

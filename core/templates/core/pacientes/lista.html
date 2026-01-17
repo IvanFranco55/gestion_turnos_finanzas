@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+    <h2>👥 Listado de Pacientes</h2>
+    <a href="{% url 'crear_paciente' %}" class="btn btn-primary">+ Nuevo Paciente</a>
+</div>
+
+<div class="card mb-3 p-3">
+    <form method="GET" class="d-flex gap-2">
+        <input type="text" name="q" class="form-control" placeholder="Buscar por apellido...">
+        <button type="submit" class="btn btn-secondary">Buscar</button>
+    </form>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-hover border">
+        <thead class="table-light">
+            <tr>
+                <th>Apellido y Nombre</th>
+                <th>DNI</th>
+                <th>Obra Social</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in pacientes %}
+            <tr>
+                <td class="fw-bold">{{ p.apellido }}, {{ p.nombre }}</td>
+                <td>{{ p.dni }}</td>
+                <td>{{ p.obra_social_default|default:"Particular" }}</td>
+                <td>{{ p.telefono }}</td>
+                <td>
+                    <a href="{% url 'editar_paciente' p.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                    <a href="{% url 'borrar_paciente' p.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

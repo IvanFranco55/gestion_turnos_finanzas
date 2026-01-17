@@ -1,0 +1,68 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>💲 Lista de Precios (Aranceles)</h3>
+    <a href="{% url 'crear_arancel' %}" class="btn btn-success">+ Nuevo Precio</a>
+</div>
+
+<div class="card p-3 mb-4 shadow-sm bg-light">
+    <form method="GET" class="row g-2 align-items-end">
+        <div class="col-md-8">
+            <label class="fw-bold small text-muted">Filtrar por Obra Social</label>
+            <select name="obra_social" class="form-select">
+                <option value="">Todas las Obras Sociales</option>
+                {% for os in obras_sociales %}
+                    <option value="{{ os.pk }}" {% if os.pk == os_seleccionada %}selected{% endif %}>
+                        {{ os.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary w-100">
+                <i class="bi bi-search"></i> Filtrar
+            </button>
+        </div>
+        <div class="col-md-2">
+            <a href="{% url 'lista_aranceles' %}" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-x-lg"></i> Limpiar
+            </a>
+        </div>
+    </form>
+</div>
+
+<div class="card shadow-sm">
+    <table class="table table-hover mb-0">
+        <thead class="table-light">
+            <tr>
+                <th>Obra Social</th>
+                <th>Tratamiento</th>
+                <th>Precio Copago ($)</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for a in aranceles %}
+            <tr>
+                <td class="fw-bold">{{ a.obra_social }}</td>
+                <td>{{ a.tratamiento }}</td>
+                <td class="text-success fw-bold">${{ a.copago_sugerido }}</td>
+                <td>
+                    <a href="{% url 'editar_arancel' a.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                    <a href="{% url 'borrar_arancel' a.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center p-3 text-muted">
+                    No hay precios cargados (o no coinciden con el filtro).
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

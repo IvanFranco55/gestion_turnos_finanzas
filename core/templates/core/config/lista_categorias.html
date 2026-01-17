@@ -1,0 +1,22 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>📂 Categorías de Gastos</h3>
+    <a href="{% url 'crear_categoria' %}" class="btn btn-success">+ Nueva Categoría</a>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="list-group shadow-sm">
+            {% for c in categorias %}
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                {{ c.nombre }}
+                <a href="{% url 'borrar_categoria' c.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+            </div>
+            {% empty %}
+            <div class="list-group-item">No hay categorías (Ej: Alquiler, Luz, Insumos).</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">{% if form.instance.pk %}Editar{% else %}Nuevo{% endif %} Turno</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Fecha</label>
+                            {{ form.fecha }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Hora</label>
+                            {{ form.hora }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Paciente</label>
+                        {{ form.paciente }}
+                        <div class="form-text"><a href="{% url 'crear_paciente' %}" target="_blank">+ Crear Paciente Nuevo</a></div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Tratamiento</label>
+                            {{ form.tratamiento }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Obra Social (Para este turno)</label>
+                            {{ form.obra_social_aplicada }}
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info py-2 small">
+                        <i class="bi bi-info-circle"></i> <strong>Precio Automático:</strong> Si dejás el monto en 0, el sistema busca el precio en Aranceles.
+                    </div>
+
+                    <div class="card bg-light border mb-4">
+                        <div class="card-body">
+                            <h6 class="card-title fw-bold text-primary border-bottom pb-2 mb-3">
+                                <i class="bi bi-cash-stack"></i> Finanzas del Turno
+                            </h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Precio Total ($)</label>
+                                    {{ form.monto_paciente }}
+                                    <div class="form-text">Valor total de la sesión.</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold text-success">Entrega / Pago ($)</label>
+                                    {{ form.monto_pagado }}
+                                    <div class="form-text">¿Cuánto abonó el paciente hoy?</div>
+                                </div>
+                            </div>
+
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        {{ form.pagado }}
+                                        <label class="form-check-label fw-bold ms-2" for="{{ form.pagado.id_for_label }}">
+                                            Cobrado Totalmente
+                                        </label>
+                                    </div>
+                                    <small class="text-muted fst-italic ms-4">
+                                        (Se marca solo si la Entrega cubre el Precio)
+                                    </small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Método de Pago</label>
+                                    {{ form.metodo_pago }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Estado del Turno</label>
+                            {{ form.estado }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Notas / Evolución</label>
+                        {{ form.nota_evolucion }}
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Guardar Turno</button>
+                        <a href="{% url 'lista_turnos' %}" class="btn btn-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

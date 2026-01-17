@@ -1,0 +1,26 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3>🏥 Obras Sociales</h3>
+    <a href="{% url 'crear_os' %}" class="btn btn-success">
+        <i class="bi bi-plus-lg"></i> Nueva Obra Social
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="list-group list-group-flush">
+        {% for os in obras_sociales %}
+        <div class="list-group-item d-flex justify-content-between align-items-center">
+            <span class="fw-bold">{{ os.nombre }}</span>
+            <div>
+                <a href="{% url 'editar_os' os.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                <a href="{% url 'borrar_os' os.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="p-3 text-muted">No hay obras sociales cargadas.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
