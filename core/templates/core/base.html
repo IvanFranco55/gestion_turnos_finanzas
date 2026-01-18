@@ -16,7 +16,6 @@
         .sidebar .active { background-color: #3498db; color: white; }
     </style>
     <style>
-    /* 1. Fondo general más agresivo */
     body.dark-mode, 
     body.dark-mode main,
     body.dark-mode .container-fluid {
@@ -24,22 +23,20 @@
         color: #e0e0e0 !important;
     }
 
-    /* 2. Forzar que las tarjetas y bloques blancos se vuelvan grises */
     body.dark-mode .card,
     body.dark-mode .bg-light,
     body.dark-mode .bg-white {
-        background-color: #555555 !important; /* Gris un poco más claro para diferenciar */
+        background-color: #555555 !important; 
         color: white !important;
         border-color: #666 !important;
     }
 
-    /* 3. Arreglar las tablas (para que no queden letras negras sobre fondo oscuro) */
     body.dark-mode .table {
         color: white !important;
         border-color: #777;
     }
     body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * {
-        background-color: rgba(255, 255, 255, 0.05) !important; /* Rayado sutil */
+        background-color: rgba(255, 255, 255, 0.05) !important;
         color: white !important;
     }
     body.dark-mode .table-hover > tbody > tr:hover > * {
@@ -47,7 +44,6 @@
         color: white !important;
     }
 
-    /* 4. Arreglar los Formularios (Inputs y Selects) */
     body.dark-mode .form-control,
     body.dark-mode .form-select,
     body.dark-mode input,
@@ -57,28 +53,25 @@
         border: 1px solid #888 !important;
     }
     
-    /* Placeholder (el texto gris clarito adentro de los inputs) */
     body.dark-mode ::placeholder {
         color: #ccc !important;
         opacity: 1;
     }
 
-    /* 5. Títulos y links */
     body.dark-mode h1, body.dark-mode h2, body.dark-mode h3, 
     body.dark-mode h4, body.dark-mode h5, body.dark-mode h6 {
         color: white !important;
     }
     body.dark-mode a {
-        color: #6ea8fe !important; /* Azul clarito para que resalte en oscuro */
+        color: #6ea8fe !important; 
     }
-    /* 1. Forzar fondo gris en TODAS las celdas, filas y cabeceras */
+
     body.dark-mode .table > :not(caption) > * > * {
         background-color: #555555 !important; 
         color: white !important;
-        box-shadow: none !important; /* Saca bordes blancos raros */
+        box-shadow: none !important; 
     }
 
-    /* 2. Efecto Hover (cuando pasás el mouse) un poquito más claro */
     body.dark-mode .table-hover > tbody > tr:hover > * {
         background-color: #666666 !important;
         color: white !important;
@@ -162,14 +155,12 @@
     const boton = document.getElementById('btnModoOscuro');
     const cuerpo = document.body;
 
-    // 1. Al cargar, preguntar si ya estaba activado antes
     if (localStorage.getItem('tema') === 'oscuro') {
         cuerpo.classList.add('dark-mode');
         boton.innerHTML = '<i class="bi bi-sun-fill"></i> Modo Claro';
         boton.classList.replace('btn-outline-light', 'btn-outline-warning');
     }
 
-    // 2. Al hacer click, cambiar y guardar
     boton.addEventListener('click', () => {
         cuerpo.classList.toggle('dark-mode');
 
