@@ -1,21 +1,22 @@
-# 🦷 Sistema de Gestión para Consultorio Odontológico
+# 🏥 Sistema de Gestión Integral para Consultorios
 
-Sistema integral desarrollado para la administración de turnos, pacientes y finanzas de un consultorio dental real. Diseñado para funcionar offline y desplegado mediante contenedores para fácil instalación.
+Sistema versátil desarrollado para la administración eficiente de turnos, historias clínicas y finanzas. Diseñado para adaptarse a **cualquier profesional de la salud** (Odontólogos, Kinesiólogos, Dermatólogos, Psicólogos, etc.) que gestione pacientes y obras sociales.
 
 ## 🚀 Funcionalidades Principales
-- **Gestión de Turnos:** Agenda interactiva con ordenamiento cronológico inteligente.
-- **Historia Clínica:** ABM (Alta, Baja, Modificación) completo de pacientes y tratamientos.
-- **Finanzas:** Control de ingresos y gastos del consultorio.
-- **UX/UI:** Interfaz moderna con **Modo Oscuro** automático y persistente.
-- **Seguridad:** Sistema de Login/Logout y usuarios administradores.
+- **Agenda Multi-propósito:** Gestión de turnos con ordenamiento cronológico inteligente.
+- **Gestión de Pacientes:** ABM completo con historial de tratamientos y seguimiento clínico.
+- **Obras Sociales y Coberturas:** Administración de convenios, aranceles y diferencias de pago.
+- **Control Financiero:** Registro de ingresos, gastos y liquidaciones del consultorio.
+- **UX/UI Moderna:** Interfaz intuitiva con **Modo Oscuro** automático y diseño responsive.
+- **Seguridad:** Control de acceso mediante roles (Admin/Profesional).
 
 ## 🛠 Tecnologías Utilizadas
 - **Backend:** Python 3.11, Django 4.2.
 - **Frontend:** HTML5, CSS3, Bootstrap 5 (Jinja2 Templates).
 - **Infraestructura:** Docker & Docker Compose.
-- **Base de Datos:** SQLite (Optimizado para uso local/monousuario).
+- **Base de Datos:** SQLite (Optimizado para despliegue local ágil).
 
 ## 📦 Instalación y Despliegue
-El proyecto está dockerizado para un despliegue "One-Click".
+El proyecto está dockerizado para una puesta en marcha inmediata en cualquier consultorio.
 ```bash
 docker-compose up -d
