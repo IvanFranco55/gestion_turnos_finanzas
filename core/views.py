@@ -1,10 +1,12 @@
 from django.shortcuts import render
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.utils import timezone
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin # Para las clases
 from django.contrib.auth.decorators import login_required # Para las funciones (def)
+from django.shortcuts import get_object_or_404, redirect
+from decimal import Decimal
 
 # Importamos todos los modelos y formularios
 from .models import (
@@ -288,3 +290,88 @@ class CategoriaDeleteView(LoginRequiredMixin, DeleteView): # <--- CANDADO AGREGA
     model = CategoriaGasto
     template_name = 'core/config/confirmar_borrar.html'
     success_url = reverse_lazy('lista_categorias')
+
+@login_required
+def toggle_atendido(request, pk):
+    """Cambia de Pendiente a Atendido (Finalizado) y viceversa con un clic"""
+    turno = get_object_or_404(Turno, pk=pk)
+    
+    if turno.estado == 'FINALIZADO':
+        turno.estado = 'PENDIENTE'
+    else:
+        turno.estado = 'FINALIZADO'
+    
+    turno.save()
+    # Redirigimos a la misma página donde estaba (la lista)
+    return redirect('lista_turnos')
+
+@login_required
+def toggle_pagado(request, pk):
+    """Cambia de No Pagado a Pagado Total con un clic"""
+    turno = get_object_or_404(Turno, pk=pk)
+    
+    if turno.pagado:
+        # Si estaba pagado, lo desmarcamos (por si hubo error)
+        turno.pagado = False
+        turno.monto_pagado = 0 # Reiniciamos el pago a 0
+    else:
+        # Si no estaba pagado, lo marcamos como pagado TOTAL
+        turno.pagado = True
+        # Autocompletamos el monto pagado para que coincida con el precio
+        turno.monto_pagado = turno.monto_paciente 
+        
+    turno.save()
+    return redirect('lista_turnos')
+
+# --- NUEVA VISTA: REPORTE DE DEUDORES ---
+@login_required
+def reporte_deudores(request):
+    # 1. Filtro base: Solo atendidos que deben plata
+    turnos_deudores = Turno.objects.filter(
+        pagado=False,
+        estado='FINALIZADO'
+    ).order_by('paciente__apellido', 'fecha')
+    
+    # 2. Lógica del Buscador
+    busqueda = request.GET.get('q') # Capturamos lo que escribió en la cajita
+    
+    if busqueda:
+        # Filtramos si el texto coincide con Nombre O Apellido
+        turnos_deudores = turnos_deudores.filter(
+            Q(paciente__nombre__icontains=busqueda) | 
+            Q(paciente__apellido__icontains=busqueda)
+        )
+    
+    # 3. Calculamos el total (después de filtrar, para saber cuánto deben LOS QUE BUSQUÉ)
+    total_deuda = sum(t.saldo_pendiente for t in turnos_deudores)
+
+    context = {
+        'turnos': turnos_deudores,
+        'total_deuda': total_deuda,
+    }
+    return render(request, 'core/reporte_deudores.html', context)
+
+
+@login_required
+def registrar_pago_deuda(request, pk):
+    if request.method == 'POST':
+        turno = get_object_or_404(Turno, pk=pk)
+
+        # Recibimos el monto que escribió en la cajita
+        monto_recibido = request.POST.get('monto_abonado')
+
+        if monto_recibido:
+            monto_recibido = Decimal(monto_recibido)
+
+            # Sumamos al pago existente
+            turno.monto_pagado += monto_recibido
+
+            # Si pagó todo (o más), cerramos la cuenta
+            if turno.monto_pagado >= turno.monto_paciente:
+                turno.monto_pagado = turno.monto_paciente # Ajustamos para no pasarnos
+                turno.pagado = True
+                turno.estado = 'FINALIZADO' # Aseguramos
+
+            turno.save()
+
+    return redirect('reporte_deudores')

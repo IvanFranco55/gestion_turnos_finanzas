@@ -31,20 +31,34 @@ class TipoTratamientoForm(BootstrapFormMixin, forms.ModelForm):
             'descripcion': forms.Textarea(attrs={'rows': 2}),
         }
 
+# --- ACÁ ESTÁ EL PRIMER ARREGLO (TURNOS) ---
 class TurnoForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Turno
-        fields = ['fecha', 'hora', 'paciente', 'tratamiento', 'obra_social_aplicada', 'monto_paciente', 'monto_pagado', 'metodo_pago', 'estado', 'nota_evolucion', 'pagado']
+        # Incluimos 'pagado' para que pueda tildarlo al editar
+        fields = ['fecha', 'hora', 'paciente', 'tratamiento', 'obra_social_aplicada', 
+                  'monto_paciente', 'monto_pagado', 'metodo_pago', 'nota_evolucion', 'pagado']
+        
         widgets = {
-            'fecha': forms.DateInput(attrs={'type': 'date'}),
-            'hora': forms.TimeInput(attrs={'type': 'time'}),
+            # FORMATO CORRECTO PARA QUE NO SE BORRE LA FECHA
+            'fecha': forms.DateInput(
+                format='%Y-%m-%d', 
+                attrs={'type': 'date'}
+            ),
+            # FORMATO CORRECTO PARA QUE NO SE BORRE LA HORA
+            'hora': forms.TimeInput(
+                format='%H:%M', 
+                attrs={'type': 'time'}
+            ),
             'nota_evolucion': forms.Textarea(attrs={'rows': 3}),
-            'pagado': forms.CheckboxInput(attrs={'class': 'form-check-input'}), # Refuerzo visual
+            'pagado': forms.CheckboxInput(attrs={'class': 'form-check-input', 'style': 'width: 20px; height: 20px;'}),
         }
         help_texts = {
             'monto_paciente': 'Dejar en 0 para que el sistema calcule el precio automático según el Arancel.',
-            'obra_social_aplicada': 'Seleccioná con qué obra social se atiende HOY.'
+            'obra_social_aplicada': 'Seleccioná con qué obra social se atiende HOY.',
+            'pagado': 'Marcar si canceló el TOTAL de la deuda.'
         }
+
     def clean(self):
         cleaned_data = super().clean()
         fecha = cleaned_data.get('fecha')
@@ -65,21 +79,31 @@ class TurnoForm(BootstrapFormMixin, forms.ModelForm):
             raise forms.ValidationError("⚠️ ¡Cuidado! Ya existe un turno activo en ese horario.")
         
         return cleaned_data
-    
+
+# --- ACÁ ESTÁ EL SEGUNDO ARREGLO (GASTOS) ---
 class GastoForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Gasto
         fields = '__all__'
         widgets = {
-            'fecha': forms.DateInput(attrs={'type': 'date'}),
+            # FORMATO CORRECTO APLICADO AQUI TAMBIEN
+            'fecha': forms.DateInput(
+                format='%Y-%m-%d', 
+                attrs={'type': 'date'}
+            ),
         }
 
+# --- ACÁ ESTÁ EL TERCER ARREGLO (LIQUIDACIONES) ---
 class LiquidacionForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = LiquidacionObraSocial
         fields = '__all__'
         widgets = {
-            'fecha_ingreso': forms.DateInput(attrs={'type': 'date'}),
+            # FORMATO CORRECTO APLICADO AQUI TAMBIEN
+            'fecha_ingreso': forms.DateInput(
+                format='%Y-%m-%d', 
+                attrs={'type': 'date'}
+            ),
         }
 
 class ArancelForm(BootstrapFormMixin, forms.ModelForm):

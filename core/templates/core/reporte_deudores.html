@@ -1,0 +1,123 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="text-danger"><i class="bi bi-exclamation-octagon-fill"></i> Lista de Deudores</h2>
+        <p class="text-muted">Gestión de saldos pendientes.</p>
+    </div>
+    
+    <div class="card bg-danger text-white shadow-sm">
+        <div class="card-body p-2 px-4 text-center">
+            <small>TOTAL DEUDA FILTRADA</small>
+            <div class="fs-4 fw-bold">${{ total_deuda }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="card p-3 mb-4 shadow-sm border-0">
+    <form method="GET" class="d-flex gap-2">
+        <input type="text" name="q" class="form-control" placeholder="Buscar por Nombre o Apellido..." value="{{ request.GET.q }}">
+        <button type="submit" class="btn btn-dark">
+            <i class="bi bi-search"></i> Buscar
+        </button>
+        {% if request.GET.q %}
+            <a href="{% url 'reporte_deudores' %}" class="btn btn-outline-secondary" title="Limpiar filtro">
+                <i class="bi bi-x-lg"></i>
+            </a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="card shadow-sm border-danger">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Paciente</th>
+                    <th>Tratamiento</th>
+                    <th>Total</th>
+                    <th>Pagado</th>
+                    <th>DEBE</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for turno in turnos %}
+                <tr>
+                    <td>{{ turno.fecha|date:"d/m" }}</td>
+                    
+                    <td class="fw-bold">
+                        <i class="bi bi-person-fill text-muted"></i> {{ turno.paciente }}
+                    </td>
+                    
+                    <td>{{ turno.tratamiento }}</td>
+                    
+                    <td class="text-muted">${{ turno.monto_paciente }}</td>
+                    <td class="text-success">${{ turno.monto_pagado }}</td>
+                    
+                    <td class="fw-bold text-danger fs-5 bg-light">
+                        ${{ turno.saldo_pendiente }}
+                    </td>
+                    
+                    <td>
+                        <button type="button" class="btn btn-success btn-sm w-100" data-bs-toggle="modal" data-bs-target="#modalCobro{{ turno.pk }}">
+                            <i class="bi bi-cash-stack"></i> Cobrar
+                        </button>
+                    </td>
+                </tr>
+
+                <div class="modal fade" id="modalCobro{{ turno.pk }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title">Cobrar a {{ turno.paciente.nombre }}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            
+                            <form action="{% url 'registrar_pago_deuda' turno.pk %}" method="POST">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <div class="alert alert-light border text-center">
+                                        <div class="text-muted small">Deuda Actual</div>
+                                        <div class="fs-2 fw-bold text-danger">${{ turno.saldo_pendiente }}</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">¿Cuánto entrega ahora?</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" step="0.01" name="monto_abonado" class="form-control form-control-lg" value="{{ turno.saldo_pendiente }}" required>
+                                        </div>
+                                        <div class="form-text">Si paga menos, quedará deuda pendiente.</div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="bi bi-check-lg"></i> Confirmar Cobro
+                                    </button>
+                                </div>
+                            </form>
+                            
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center p-5">
+                        <h3 class="text-success">¡Todo al día! 🎉</h3>
+                        <p class="text-muted">No hay deudores registrados.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="mt-4 text-end">
+    <a href="{% url 'lista_turnos' %}" class="btn btn-secondary">Volver a la Agenda</a>
+</div>
+{% endblock %}

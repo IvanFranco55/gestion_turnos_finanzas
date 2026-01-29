@@ -1,6 +1,12 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
+from .views import (
+    lista_turnos, balance_financiero, # Vistas Funciones
+    TurnoCreateView, TurnoUpdateView, TurnoDeleteView, # Vistas Clases (Las que faltaban)
+    toggle_atendido, toggle_pagado, # Las nuevas funciones de los botones
+    reporte_deudores, registrar_pago_deuda
+)
 
 urlpatterns = [
     path('', views.lista_turnos, name='lista_turnos'), # Home por defecto
@@ -49,4 +55,11 @@ urlpatterns = [
 
     path('accounts/login/', auth_views.LoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
+
+    path('turno/toggle-atendido/<int:pk>/', toggle_atendido, name='toggle_atendido'),
+    path('turno/toggle-pagado/<int:pk>/', toggle_pagado, name='toggle_pagado'),
+
+    path('finanzas/deudores/', reporte_deudores, name='reporte_deudores'),
+
+    path('finanzas/pagar-deuda/<int:pk>/', registrar_pago_deuda, name='registrar_pago_deuda'),
 ]

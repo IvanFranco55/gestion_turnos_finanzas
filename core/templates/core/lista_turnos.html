@@ -33,65 +33,80 @@
 
 <div class="table-responsive">
     <table class="table table-striped table-hover shadow-sm align-middle">
-        <thead class="table-dark">
+        <thead class="table-dark text-center">
             <tr>
-                <th>Fecha</th>
-                <th>Hora</th>
+                <th>Horario</th>
                 <th>Paciente</th>
                 <th>Tratamiento</th>
-                <th>O. Social</th>
-                <th>Total</th>
-                <th>Entrega</th> <th>Estado / Deuda</th> <th>Acciones</th>
+                <th>Precio Total</th>
+                <th>¿Atendido?</th>
+                <th>Estado Pago / Deuda</th> <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
             {% for turno in turnos %}
-            <tr class="{% if turno.estado == 'CANCELADO' %}table-secondary text-decoration-line-through text-muted{% endif %}">
+            <tr class="text-center {% if turno.estado == 'CANCELADO' %}table-secondary text-decoration-line-through text-muted{% endif %}">
                 
-                <td>{{ turno.fecha|date:"d/m/Y" }}</td>
-                <td>{{ turno.hora|time:"H:i" }}</td>
-                <td>{{ turno.paciente }}</td>
+                <td>
+                    <div class="fw-bold fs-5">{{ turno.hora|time:"H:i" }}</div>
+                    <div class="small text-muted">{{ turno.fecha|date:"d/m" }}</div>
+                </td>
+
+                <td class="text-start">
+                    <div class="fw-bold">{{ turno.paciente }}</div>
+                    <div class="small text-muted">{{ turno.obra_social_aplicada }}</div>
+                </td>
+
                 <td>{{ turno.tratamiento }}</td>
-                <td>{{ turno.obra_social_aplicada }}</td>
-                <td class="fw-bold">${{ turno.monto_paciente }}</td>
+
+                <td class="fw-bold text-primary">${{ turno.monto_paciente }}</td>
                 
-                <td class="text-muted small">${{ turno.monto_pagado }}</td>
+                <td>
+                    {% if turno.estado == 'CANCELADO' %}
+                        <span class="badge bg-secondary">Cancelado</span>
+                    {% else %}
+                        <a href="{% url 'toggle_atendido' turno.pk %}" class="text-decoration-none" data-bs-toggle="tooltip" title="Clic para cambiar estado">
+                            {% if turno.estado == 'FINALIZADO' %}
+                                <i class="bi bi-check-circle-fill text-success fs-2"></i>
+                            {% else %}
+                                <i class="bi bi-x-circle-fill text-danger fs-2 opacity-50"></i>
+                            {% endif %}
+                        </a>
+                    {% endif %}
+                </td>
 
                 <td>
                     {% if turno.estado == 'CANCELADO' %}
-                        <span class="badge bg-secondary border border-dark text-white">
-                            🚫 CANCELADO
-                        </span>
-                    
-                    {% elif turno.saldo_pendiente > 0 %}
-                        <span class="badge bg-danger border border-light shadow-sm p-2">
-                            <i class="bi bi-exclamation-triangle-fill"></i> DEBE ${{ turno.saldo_pendiente }}
-                        </span>
-                        <div class="small fw-bold mt-1 text-muted">
-                            {% if turno.estado == 'FINALIZADO' %}
-                                <i class="bi bi-check-all text-primary"></i> Atendido
-                            {% else %}
-                                ⏳ Pendiente
-                            {% endif %}
-                        </div>
-
+                        -
                     {% else %}
-                        <span class="badge bg-success p-2">
-                            <i class="bi bi-cash-coin"></i> Pagado Total
-                        </span>
-                        <div class="small text-muted mt-1">
-                            {{ turno.get_estado_display }}
-                        </div>
+                        <a href="{% url 'toggle_pagado' turno.pk %}" class="text-decoration-none d-flex flex-column align-items-center justify-content-center">
+                            
+                            {% if turno.pagado %}
+                                <i class="bi bi-cash-coin text-success fs-2" title="Pagado Total"></i>
+                                <span class="badge bg-success rounded-pill small mt-1">Ok</span>
+
+                            {% elif turno.monto_pagado > 0 %}
+                                <i class="bi bi-cash text-warning fs-2" title="Pago Parcial - Clic para completar"></i>
+                                <span class="badge bg-danger rounded-pill mt-1">
+                                    Restan ${{ turno.saldo_pendiente }}
+                                </span>
+
+                            {% else %}
+                                <i class="bi bi-cash text-danger fs-2 opacity-25" title="Impago - Clic para cobrar todo"></i>
+                                <span class="badge bg-light text-muted border mt-1">Impago</span>
+                            {% endif %}
+
+                        </a>
                     {% endif %}
                 </td>
 
                 <td>
                     <div class="btn-group btn-group-sm">
-                        <a href="{% url 'editar_turno' turno.pk %}" class="btn btn-primary" title="Editar / Cobrar">
+                        <a href="{% url 'editar_turno' turno.pk %}" class="btn btn-outline-primary" title="Editar detalles">
                             <i class="bi bi-pencil-square"></i>
                         </a>
                         
-                        <a href="{% url 'borrar_turno' turno.pk %}" class="btn btn-outline-danger" title="Eliminar definitivamente">
+                        <a href="{% url 'borrar_turno' turno.pk %}" class="btn btn-outline-danger" title="Eliminar">
                             <i class="bi bi-trash"></i>
                         </a>
                     </div>
@@ -99,7 +114,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="9" class="text-center p-4">No hay turnos registrados con esos filtros.</td>
+                <td colspan="7" class="text-center p-4">No hay turnos registrados.</td>
             </tr>
             {% endfor %}
         </tbody>

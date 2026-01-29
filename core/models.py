@@ -47,9 +47,9 @@ class Paciente(models.Model):
 
 class Turno(models.Model):
     ESTADOS = [
-        ('PENDIENTE', 'Pendiente'),
-        ('FINALIZADO', 'Finalizado (Cobrado)'),
-        ('CANCELADO', 'Cancelado'),
+        ('PENDIENTE', '⏳ Pendiente'),
+        ('FINALIZADO', '✅ Atendido'),
+        ('CANCELADO', '🚫 Cancelado'),
     ]
     METODOS_PAGO = [('EFECTIVO', 'Efectivo'), ('TRANSFERENCIA', 'Transferencia/MP')]
 
