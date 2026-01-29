@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión Odontologia</title>
-    <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
+    <title>{{ clinica_config.nombre_clinica|default:"Gestión Odontología" }}</title>
+    
+    {% if clinica_config and clinica_config.logo %}
+        <link rel="icon" type="image/png" href="{{ clinica_config.logo.url }}">
+    {% else %}
+        <link rel="icon" type="image/png" href="{% static 'images/logo.png' %}">
+    {% endif %}
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -14,6 +19,9 @@
         .sidebar a { color: #ecf0f1; text-decoration: none; padding: 10px 15px; display: block; }
         .sidebar a:hover { background-color: #34495e; color: #3498db; }
         .sidebar .active { background-color: #3498db; color: white; }
+        
+        /* ESTILO NUEVO PARA EL HOVER DEL LOGO */
+        .group-logo-hover:hover .hover-overlay { opacity: 1 !important; }
     </style>
     <style>
 /* === MODO OSCURO: VERSIÓN BLINDADA (SOLUCIÓN FILTROS Y RESULTADO) === */
@@ -37,36 +45,31 @@ body.dark-mode small {
     color: #e0e0e0 !important;
 }
 
-/* 3. ARREGLO DE INPUTS Y FILTROS (LO QUE PEDISTE AHORA) */
-/* Fondo oscuro, LETRA BLANCA al escribir */
+/* 3. ARREGLO DE INPUTS Y FILTROS */
 body.dark-mode input, 
 body.dark-mode select, 
 body.dark-mode textarea, 
 body.dark-mode .form-control, 
 body.dark-mode .form-select {
     background-color: #2d2d2d !important;
-    color: #ffffff !important; /* TEXTO BLANCO AL ESCRIBIR */
+    color: #ffffff !important;
     border: 1px solid #555 !important;
 }
-/* El texto de ayuda (placeholder) en gris claro para que se vea */
 body.dark-mode ::placeholder {
     color: #bbbbbb !important;
     opacity: 1 !important;
 }
-/* Las opciones del desplegable */
 body.dark-mode option {
     background-color: #2d2d2d;
     color: #ffffff;
 }
 
 /* 4. SOLUCIÓN AL "FLASH" DEL RESULTADO DEL PERÍODO */
-/* El problema es que Bootstrap fuerza el fondo clarito (subtle). */
-/* ACÁ LO OBLIGAMOS A SER OSCURO. Así, el texto blanco se lee perfecto. */
 body.dark-mode .bg-success-subtle,
 body.dark-mode .bg-danger-subtle,
 body.dark-mode .alert {
-    background-color: #1e1e1e !important; /* LO PONEMOS OSCURO */
-    color: #ffffff !important;             /* TEXTO BLANCO */
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
     border: 1px solid #333 !important;
 }
 
@@ -76,19 +79,16 @@ body.dark-mode .card {
     color: #ffffff !important;
     border-color: #333 !important;
 }
-/* Forzamos texto blanco adentro */
 body.dark-mode .card h1, body.dark-mode .card h2, body.dark-mode .card h3,
 body.dark-mode .card h6, body.dark-mode .card div, body.dark-mode .card label {
     color: #ffffff !important;
 }
 
 /* 6. COLORES ESPECÍFICOS (AZUL, ROJO, VERDE) */
-/* Hacemos que brillen sobre el fondo oscuro */
-body.dark-mode .text-primary { color: #448aff !important; } /* Azul Brillante */
-body.dark-mode .text-danger  { color: #ff5252 !important; } /* Rojo Brillante */
-body.dark-mode .text-success { color: #69f0ae !important; } /* Verde Brillante */
+body.dark-mode .text-primary { color: #448aff !important; }
+body.dark-mode .text-danger  { color: #ff5252 !important; }
+body.dark-mode .text-success { color: #69f0ae !important; }
 
-/* Regla especial para el PRECIO ROJO de Deudores (Intocable) */
 body.dark-mode td.text-danger,
 body.dark-mode span.text-danger,
 body.dark-mode .bg-light .text-danger {
@@ -96,8 +96,7 @@ body.dark-mode .bg-light .text-danger {
     font-weight: bold !important;
 }
 
-/* 7. LISTAS Y TABLAS (Obras Sociales / Gastos) */
-/* Matamos cualquier fondo blanco residual */
+/* 7. LISTAS Y TABLAS */
 body.dark-mode .bg-white,
 body.dark-mode .bg-light,
 body.dark-mode .list-group-item,
@@ -119,7 +118,7 @@ body.dark-mode .table-hover > tbody > tr:hover > * {
     color: #fff !important;
 }
 
-/* 8. MANTENER BORDES DE COLORES (Finanzas) */
+/* 8. MANTENER BORDES DE COLORES */
 body.dark-mode .border-primary { border-color: #0d6efd !important; border-width: 2px !important; }
 body.dark-mode .border-success { border-color: #198754 !important; border-width: 2px !important; }
 body.dark-mode .border-danger  { border-color: #dc3545 !important; border-width: 2px !important; }
@@ -138,8 +137,25 @@ body.dark-mode .btn-close { filter: invert(1); }
     <div class="row">
         <div class="col-md-3 col-lg-2 sidebar p-0">
             
-            <div class="w-100 bg-dark border-bottom">
-                <img src="{% static 'images/logo.png' %}" alt="Logo" class="img-fluid d-block w-100" style="object-fit: cover;">
+            <div class="w-100 bg-dark border-bottom text-center position-relative group-logo-hover">
+                
+                <form id="formLogo" action="{% url 'actualizar_logo' %}" method="POST" enctype="multipart/form-data" style="display: none;">
+                    {% csrf_token %}
+                    <input type="file" name="logo" id="inputLogo" accept="image/*" onchange="document.getElementById('formLogo').submit();">
+                </form>
+            
+                <div style="cursor: pointer; position: relative;" onclick="document.getElementById('inputLogo').click();" title="Clic para cambiar el logo">
+                    {% if clinica_config and clinica_config.logo %}
+                        <img src="{{ clinica_config.logo.url }}" alt="{{ clinica_config.nombre_clinica }}" class="img-fluid d-block w-100" style="object-fit: cover; max-height: 200px; transition: opacity 0.3s;">
+                    {% else %}
+                        <img src="{% static 'images/logo.png' %}" alt="Logo Default" class="img-fluid d-block w-100" style="object-fit: cover;">
+                    {% endif %}
+                    
+                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center text-white bg-dark bg-opacity-50 opacity-0 hover-overlay" style="transition: opacity 0.3s;">
+                        <i class="bi bi-camera-fill fs-3"></i>
+                        <span class="ms-2 fw-bold">Cambiar</span>
+                    </div>
+                </div>
             </div>
 
             <div class="p-3 bg-dark bg-opacity-50 border-bottom border-secondary">
@@ -167,7 +183,9 @@ body.dark-mode .btn-close { filter: invert(1); }
             </div>
 
             <nav class="mt-2">
-                <div class="text-muted small fw-bold px-3 mt-2 mb-1">MENU PRINCIPAL</div>
+                <div class="text-muted small fw-bold px-3 mt-2 mb-1">
+                    {{ clinica_config.nombre_clinica|default:"MENU PRINCIPAL"|upper }}
+                </div>
                         
                 <a href="{% url 'lista_turnos' %}" class="{% if 'turnos' in request.path %}active{% endif %}">
                     <i class="bi bi-calendar-check me-2"></i> Agenda / Turnos
@@ -223,7 +241,7 @@ body.dark-mode .btn-close { filter: invert(1); }
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-    // Inicializar Tooltips (para los cartelitos al pasar el mouse)
+    // Inicializar Tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
       return new bootstrap.Tooltip(tooltipTriggerEl)

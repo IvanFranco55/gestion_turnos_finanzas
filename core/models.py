@@ -112,3 +112,21 @@ class Gasto(models.Model):
     categoria = models.ForeignKey(CategoriaGasto, on_delete=models.PROTECT)
     descripcion = models.CharField(max_length=200, blank=True, null=True)
     monto = models.DecimalField(max_digits=12, decimal_places=2)
+
+class Configuracion(models.Model):
+    # Solo permitiremos que exista 1 fila en esta tabla
+    nombre_clinica = models.CharField(max_length=100, default="Mi Consultorio")
+    logo = models.ImageField(upload_to='logos/', blank=True, null=True)
+    
+    class Meta:
+        verbose_name = "Configuración del Sistema"
+        verbose_name_plural = "Configuración del Sistema"
+
+    def __str__(self):
+        return self.nombre_clinica
+
+    def save(self, *args, **kwargs):
+        # Esto asegura que si ya existe una config, no cree otra, sino que edite la existente
+        if not self.pk and Configuracion.objects.exists():
+            return # O podrías lanzar un error, pero con esto evitamos duplicados simples
+        super().save(*args, **kwargs)

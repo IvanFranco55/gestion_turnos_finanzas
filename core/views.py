@@ -11,7 +11,7 @@ from decimal import Decimal
 # Importamos todos los modelos y formularios
 from .models import (
     Turno, Gasto, LiquidacionObraSocial, Paciente, ObraSocial, 
-    TipoTratamiento, Arancel, CategoriaGasto
+    TipoTratamiento, Arancel, CategoriaGasto, Configuracion
 )
 from .forms import (
     PacienteForm, ObraSocialForm, TipoTratamientoForm, TurnoForm, 
@@ -375,3 +375,19 @@ def registrar_pago_deuda(request, pk):
             turno.save()
 
     return redirect('reporte_deudores')
+
+@login_required
+def actualizar_logo(request):
+    """Recibe una imagen por POST y actualiza el logo de la configuración"""
+    if request.method == 'POST' and request.FILES.get('logo'):
+        # Buscamos la config existente o creamos una si no existe
+        config = Configuracion.objects.first()
+        if not config:
+            config = Configuracion.objects.create()
+        
+        # Guardamos la nueva foto
+        config.logo = request.FILES['logo']
+        config.save()
+        
+    # Volvemos a la misma página donde estaba el usuario
+    return redirect(request.META.get('HTTP_REFERER', 'lista_turnos'))

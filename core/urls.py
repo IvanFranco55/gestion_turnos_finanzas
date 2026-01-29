@@ -7,6 +7,8 @@ from .views import (
     toggle_atendido, toggle_pagado, # Las nuevas funciones de los botones
     reporte_deudores, registrar_pago_deuda
 )
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.lista_turnos, name='lista_turnos'), # Home por defecto
@@ -62,4 +64,9 @@ urlpatterns = [
     path('finanzas/deudores/', reporte_deudores, name='reporte_deudores'),
 
     path('finanzas/pagar-deuda/<int:pk>/', registrar_pago_deuda, name='registrar_pago_deuda'),
+
+    path('config/actualizar-logo/', views.actualizar_logo, name='actualizar_logo'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
